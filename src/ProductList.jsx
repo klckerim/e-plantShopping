@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import './ProductList.css'
+import { useSelector, useDispatch } from 'react-redux';
 import CartItem from './CartItem';
-import addItem from './CartSlice'
+import { addItem } from './CartSlice';
 
 function ProductList({ onHomeClick }) {
     const [showCart, setShowCart] = useState(false);
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
     const [addedToCart, setAddedToCart] = useState({});
+    const dispatch = useDispatch();
+    const CartItems = useSelector((state) => state.cart.items);
 
     const handleAddToCart = (product) => {
         dispatch(addItem(product)); // Dispatch the action to add the product to the cart (Redux action)
-      
-        setAddedToCart((prevState) => ({ // Update the local state to reflect that the product has been added
-          ...prevState, // Spread the previous state to retain existing entries
-          [product.name]: true, // Set the current product's name as a key with value 'true' to mark it as added
-        }));
-      };
 
+        setAddedToCart((prevState) => ({ // Update the local state to reflect that the product has been added
+            ...prevState, // Spread the previous state to retain existing entries
+            [product.name]: true, // Set the current product's name as a key with value 'true' to mark it as added
+        }));
+    };
+
+    const calculateTotalQuantity = () => {
+        return CartItems && CartItems.length > 0
+            ? CartItems.reduce((total, item) => total + item.quantity, 0)
+            : 0;
+    };
 
     const plantsArray = [
         {
@@ -287,26 +295,26 @@ function ProductList({ onHomeClick }) {
             </div>
             {!showCart ? (
                 <div className="product-grid">
-                    {plantsArray.map((category, index) => ( 
-                        <div key={index}> 
+                    {plantsArray.map((category, index) => (
+                        <div key={index}>
                             <h1>
-                                <div>{category.category}</div> 
+                                <div>{category.category}</div>
                             </h1>
-                            <div className="product-list"> 
-                                {category.plants.map((plant, plantIndex) => (  
-                                    <div className="product-card" key={plantIndex}> 
+                            <div className="product-list">
+                                {category.plants.map((plant, plantIndex) => (
+                                    <div className="product-card" key={plantIndex}>
                                         <img
                                             className="product-image"
-                                            src={plant.image} 
+                                            src={plant.image}
                                             alt={plant.name}
                                         />
-                                        <div className="product-title">{plant.name}</div>  
-                                        
-                                        <div className="product-description">{plant.description}</div>  
-                                        <div className="product-cost">${plant.cost}</div>  
+                                        <div className="product-title">{plant.name}</div>
+
+                                        <div className="product-description">{plant.description}</div>
+                                        <div className="product-cost">${plant.cost}</div>
                                         <button
                                             className="product-button"
-                                            onClick={() => handleAddToCart(plant)} 
+                                            onClick={() => handleAddToCart(plant)}
                                         >
                                             Add to Cart
                                         </button>
